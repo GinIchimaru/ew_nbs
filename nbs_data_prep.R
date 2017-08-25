@@ -9,14 +9,14 @@ library(lubridate)
 ###################             Ucitavanje podataka      ######################
 ###############################################################################
 
-RK_podaci_novi<-read_delim("C:/Users/milos.cipovic/Desktop/Baze podataka/K4 i APR/RK_novi.txt", 
+RK_podaci_novi<-read_delim("C:/Users/milos.cipovic/Desktop/Baze podataka/K4 i APR i NPL/RK_novi.txt", 
                            "|", escape_double = FALSE, col_types = cols(DATUM = col_date(format = "%d.%m.%Y")), 
                            trim_ws = TRUE)
 #dakle biramo samo kolone sa ovim rednim brojevima jer nam druge nisu interesantne
 RK_podaci_novi<-RK_podaci_novi[,c(1,2,3,6,8,9,12,31,32)]
 gc()# free system memory
 
-KA4_podaci <- read_delim("C:/Users/milos.cipovic/Desktop/Baze podataka/K4 i APR/KA4_podaci.txt",
+KA4_podaci <- read_delim("C:/Users/milos.cipovic/Desktop/Baze podataka/K4 i APR i NPL/KA4_podaci.txt",
                          "|",  locale = locale(encoding = "UTF-8"), trim_ws = TRUE,escape_double = FALSE)
 #dakle biramo samo kolone sa ovim rednim brojevima jer nam druge nisu interesantne
 KA4_podaci <-KA4_podaci[,c(1,2,3,4,5,6,9,25,36,40)]

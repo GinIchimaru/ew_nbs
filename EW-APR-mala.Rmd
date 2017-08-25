@@ -539,7 +539,7 @@ ___________________________________________
 U tabeli 5. ispod vidimo da najvecu diskriminacionu moc poseduje varijabla T14 odmah iza koje je ALtman 1. 
 ```{r, message=F, warning=F}
 #proracun
-cor=cor(small.training.continualne[,-1], use = "complete.obs")
+cor=cor(small.training.continualne[,c(-1,-31,-32,-33)], use = "complete.obs")
 
 #dodajemo AUROC kao dodatnu kolonu pored varijable
 
@@ -548,7 +548,7 @@ corr_summary.small <- function (predictor) {
   suppressMessages(auc(response, as.numeric(predictor)))
 }
 
-auc_sumarno.small<-sapply(small.training.continualne[,-1], corr_summary.small)
+auc_sumarno.small<-sapply(small.training.continualne[,c(-1,-31,-32,-33)], corr_summary.small)
 kor_diskr.small<-(cbind(auc_sumarno.small,cor)) 
 
 formatRound(
@@ -558,7 +558,7 @@ formatRound(
                       ),
             columns = colnames(kor_diskr.small)
            )
-
+as.data.frame(kor_diskr.small)
 ```
 
 Ovde kreiram funkciju koja ce da filtrira varijable po kriterijumu korelacije. Naime, po ugledu na [^4] kao kriterijum granice koeficijenta korelacije preko koje ne bismo smeli prelaziti uzecemo vrednost od 0.5 koji ce u sprezi sa AUROC vrednosti selektirati jednu od dve varijable. Konacan izbor varijabli se vidi u korelacionoj tabeli ispod.  
@@ -582,7 +582,6 @@ Dodatno o dinamickim varijablama, u buducim vezbama, predlazem da se skroz izbac
 $$ t:X_{t}^{[1]}=-0.5, X_{t}^{[2]}=0.7 \\ t+1:X_{t+1}^{[1]}=-0.9, X_{t+1}^{[2]}=0.9 $$  
 Tako da ukoliko sada izracunamo rast ovog racija za oba preduzeca dobijamo:  
 $$R_{x^{[1]}}=\frac{X_{t+1}^{[1]}}{X_{t}^{[1]}}-1=80 \%\\ R_{x^{[2]}}=\frac{X_{t+1}^{[2]}}{X_{t}^{[2]}}-1=28\% $$
-
 , sto bi znacilo da preduzece 1 ima bolji PD od preduzeca 2 po pocetnoj hipotezi, a to ne moze biti jer je pozicija preduzeca 1 od starta bila losija i jos se pogorsala u sledecih godinu dana. Ovo je glavni razlog zbog koga, verovatno, ovakve varijable nisu pokazale jaku diskriminativnu moc. Kada se odlucimo u buducnosti za proracun rasta kao potencijalnu varijablu, potrebno je da on pre svega bude racunat na monotonim varijablama, koje ne menjaju znak!  
 
 Nastavljamo:  
@@ -601,7 +600,7 @@ Prvo cemo podeliti varijablu na n intervala. Za optimalan broj intervala mozemo 
 
 ```{r}
 #kreiram tabelu od pokrica neto kamata i indikatora default-a
-data<-lrge.training[,c("default.y","Pokrice_neto_kamata")]
+data<-small.training[,c("default.y","Pokrice_neto_kamata")]
 
 IV <- create_infotables(data=data,
                         y="default.y", 
@@ -852,17 +851,17 @@ freq_table=function(dta,kategorical,default){
   as.data.frame(frekvenca_sektor)
 }
 
-freq_table(lrge.training.kategoricke,"Sifra_sektor","default.y")
+freq_table(small.training.kategoricke,"Sifra_sektor","default.y")
 ```
 
 Posmatrajuci tabelu vidimo da vec navedene kriterijume zadovoljavaju C, F, G sektor, tako da ostale mozemo svrstati u poseban sektor. Medjutim, ono sto uvidjamo je, nazalost, da sva tri sektora imaju slicnu stopu difolta kao i komplet uzorak, zakljucujemo da nam je ova varijabla beskorisna..osim F, gradjevinarstvo, koje mozemo tretirati kao pojedinacnu varijablu.  
 ```{r}
-lrge.training.kategoricke$Sifra_sektor[lrge.training.kategoricke$Sifra_sektor!="F"]<-"Z"
-freq_table(lrge.training.kategoricke,"Sifra_sektor","default.y")
+small.training.kategoricke$Sifra_sektor[lrge.training.kategoricke$Sifra_sektor!="F"]<-"Z"
+freq_table(small.training.kategoricke,"Sifra_sektor","default.y")
 ```
 
 ```{r}
-WOETable(X=as.factor(lrge.training.kategoricke$Sifra_sektor), Y=(lrge.training.kategoricke$default.y-1)*(-1))
+WOETable(X=as.factor(small.training.kategoricke$Sifra_sektor), Y=(lrge.training.kategoricke$default.y-1)*(-1))
 IV_Value
 ```
 *Information value* od 0.06 deluje kao prihvatljiv, iako ovde imamo samo 19 difoltera...ali ipak ovo je rejting a ne scoring. 

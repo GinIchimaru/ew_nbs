@@ -49,7 +49,7 @@ Pokazatelji_novi <-
   col_types = cols(Datum = col_date(format = "%m-%d-%Y")),
   locale = locale(encoding = "ASCII"),
   trim_ws = TRUE,
-  progress = FALSE
+  progress =F 
   )
   gc()
 ```
@@ -637,7 +637,7 @@ _______________
 ploting(lrge.training,25,7)
 
 ```
-*   Radna hipoteza-nezadovoljena, veci difolt kod manjih vrednosti
+*   Radna hipoteza-nezadovoljena, veci difolt kod manjih vrednosti, ipak cemo je uzeti, jer može ekonomski da se objasni rezultat
 *   Diskriminativnost - ima na 95% znacajnosti suprotan znak, ono sto bi moglo praviti problem je promena diskriminativnosti kod poslednje cetvrtine distribucije
 *   autlajeri - naravno ima ih
 *   normalnost - ma da...
@@ -966,9 +966,9 @@ Osim testiranja monotonosti hipoteze, negde se testira i postojanje linearne zav
 Pa hajde da krenemo sa gore navedenim. Takodje, videh da je mozda broj zaposlenih bilo potrebno rtacunati prema aktivi kao racio, ali to mi  ranije nije palo na pamet, mada ne mislim da bi imalo znacajnih promena, eventualno, varijabla koja bi imala smisla je procentualna promena ove varijable, što bi, opet, zahtevalo gubljenje prve godine observacija samo zbog nje, jer se druge dinamicke varijable nisu pokazale kao dovoljno diskriminativno znacajne.  
 
 Dodatno o dinamickim varijablama, u buducim vezbama, predlazem da se skroz izbace iz selekcije iz razloga sto nisu monotone, naime, buduci da ove varijable mogu uzimati kako negativne tako i pozitivne vrednosti. Primera radi, moguc je sledeci slucaj, recimo da imamo dva preduzeca $X^{[1]}$ i $X^{[2]}$, u roku od dve godine oni su ostvarili sledece vrednosti nekog racija koji je obrnuto povezan sa difoltom (veci racio-manji PD):  
-$$ t:X_{t}^{[1]}=-0.5, X_{t}^{[2]}=0.7 \\ t+1:X_{t+1}^{[1]}=-0.9, X_{t+1}^{[2]}=0.9$$  
+$$ t:X_{t}^{[1]}=-0.5, X_{t}^{[2]}=0.7 \\ t+1:X_{t+1}^{[1]}=-0.9, X_{t+1}^{[2]}=0.9 $$  
 Tako da ukoliko sada izracunamo rast ovog racija za oba preduzeca dobijamo:  
-$$R_{x^{[1]}}=\frac{X_{t+1}^{[1]}}{X_{t}^{[2]}}-1=80 \%\\ R_{x^{[2]}}=\frac{X_{t+1}^{[1]}}{X_{t}^{[2]}}-1=28\% $$
+$$R_{x^{[1]}}=\frac{X_{t+1}^{[1]}}{X_{t}^{[1]}}-1=80 \%\\ R_{x^{[2]}}=\frac{X_{t+1}^{[2]}}{X_{t}^{[2]}}-1=28\% $$
 
 , sto bi znacilo da preduzece 1 ima bolji PD od preduzeca 2 po pocetnoj hipotezi, a to ne moze biti jer je pozicija preduzeca 1 od starta bila losija i jos se pogorsala u sledecih godinu dana. Ovo je glavni razlog zbog koga, verovatno, ovakve varijable nisu pokazale jaku diskriminativnu moc. Kada se odlucimo u buducnosti za proracun rasta kao potencijalnu varijablu, potrebno je da on pre svega bude racunat na monotonim varijablama, koje ne menjaju znak!  
 
@@ -1561,11 +1561,12 @@ finalni_lrge.valid <-
                   ])
 #pretvaram kategoricke u faktor da bi ih glm posmatrao kao kategoricke
 finalni_lrge.valid$Sifra_sektor <- factor(finalni_lrge.valid$Sifra_sektor)
-finalni_lrge.valid$Strani_investitor <-factor(finalni_lrge.valid$Strani_investitor)
+#finalni_lrge.valid$Strani_investitor <-factor(finalni_lrge.valid$Strani_investitor)
 
 
 
 finalni_lrge.valid[finalni_lrge.valid$Sifra_sektor!="F",Sifra_sektor:="Z"]
+finalni_lrge.valid$Sifra_sektor <- factor(finalni_lrge.valid$Sifra_sektor)
 finalni_lrge.valid[finalni_lrge.valid$Sifra_opstine!="89010",Sifra_opstine:="0000"]
 finalni_lrge.valid$Sifra_opstine <- factor(finalni_lrge.valid$Sifra_opstine)
 
@@ -1605,6 +1606,7 @@ auc.pred<-vector()
 comb.mat <- matrix(numeric(0), nrow=nvar, ncol=0) # initialise the matrix containing all combinations
 
 
+
 for ( i in 1:nvar ) { # generate and store all possible combination of sums of the 14 variables
   
   t.mat <- combn(my.grad.data, m=i)
@@ -1618,7 +1620,7 @@ my.vars$default.y=finalni_lrge$default.y
 for ( j in 1:dim(comb.mat)[2] ) { # calculate and store the R2 for all combinations
   
   #sum.vec <- rowSums(my.vars[, comb.mat[, j]], na.rm=TRUE)
-#browser()
+
   sum.vars[j] <- paste( colnms[c(na.omit(comb.mat[, j]))], 
     collapse="+")
   relacija=as.formula(paste("default.y ~ ",sum.vars[j],sep = ""))
@@ -1631,22 +1633,54 @@ for ( j in 1:dim(comb.mat)[2] ) { # calculate and store the R2 for all combinati
   model.data.frame=data.frame(fit=fitted.values(model), dif=model$y)
   auc.p[j] <- auc(as.numeric(model.data.frame$dif), as.numeric(model.data.frame$fit))
   
+  
+  
   model.pred<-as.numeric(predict(model, newdata = finalni_lrge.valid, type = "response"))
   dif<-as.numeric(finalni_lrge.valid$default.y)
-  auc.pred[j]<-auc( dif,model1.pred)
+  auc.pred[j]<-auc( dif,model.pred)
   
   if(j %in% round(seq(from=1, to=dim(comb.mat)[2],length.out = 100))) print(j/dim(comb.mat)[2])
   #print(j)
+  #if(j==104) browser()
 }
 
 
 
 result.frame <- data.frame(combination=sum.vars, auc.p=auc.p, auc.valid=auc.pred)
 
-result.frame.sorted <- result.frame[order(auc.p, decreasing=TRUE), ]
+result.frame.sorted <- result.frame[order(auc.pred, decreasing=TRUE), ]
 
 head(result.frame.sorted, n=100) # the 10 "best" combinations
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
