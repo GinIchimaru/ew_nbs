@@ -1,7 +1,7 @@
 #KA4_url="C:/Users/milos.cipovic/Desktop/Baze podataka/K4 i APR/KA4_podaci.txt"
 #RK_url="C:/Users/milos.cipovic/Desktop/Baze podataka/K4 i APR/RK_novi.txt"
 
-read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0.99,triger_za_default=0.2){
+read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0.99,triger_za_default=0.2, consequtive_difolt=T){
 ###########################################################################################################  
   #funkcija sluzi za ucitavanje rk i ka4 obrasca i njihovu manipulaciju i spajanje, ciscenje              #
   #nelogicnih unosa, brisanje redova zbirno u ka4, zadrzavanje samo decembra meseca u rk,                 #
@@ -51,13 +51,47 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
   ###################             Ucitavanje podataka      ######################
   ###############################################################################
   
-  RK_podaci_novi<-read_delim(RK_url, 
-                             "|", escape_double = FALSE, col_types = cols(DATUM = col_date(format = "%d.%m.%Y")), 
-                             trim_ws = TRUE)
-  RK_podaci_novi<-RK_podaci_novi[,c(1,2,3,6,8,9,12,31,32)]#dakle biramo samo kolone sa ovim rednim brojevima jer nam druge nisu interesantne
+  #dakle biramo samo kolone sa ovim rednim brojevima jer nam druge nisu interesantne
+  RK_podaci_novi <-
+    read_delim(RK_url,
+      "|",
+      escape_double = FALSE,
+      col_types = cols_only(
+        DATUM = col_date(format = "%d.%m.%Y"),
+        "MATICNI_BROJ" = "?",
+        "NAZIV_BANKE" = "?",
+        "FIZL_PRAVL_IND" = "?",
+        "MAT_BR_DUZ" = "?",
+        "NAZIV_DUZ" = "?",
+        "KLASIFIKACIJA" = "?",
+        "BILANS_BRUTO" = "?",
+        "BILANS_NETO" = "?"
+      ),
+      trim_ws = TRUE)
+  
+  
   gc()# free system memory
-  KA4_podaci <- read_delim(KA4_url, "|",  locale = locale(encoding = "UTF-8"), trim_ws = TRUE,escape_double = FALSE)
-  KA4_podaci <-KA4_podaci[,c(1,2,3,4,5,6,9,25,36,40)]#dakle biramo samo kolone sa ovim rednim brojevima jer nam druge nisu interesantne
+  #dakle biramo samo kolone sa ovim rednim brojevima jer nam druge nisu interesantne
+  KA4_podaci <-
+    read_delim(
+      KA4_url,
+      "|",
+      locale = locale(encoding = "UTF-8"),
+      trim_ws = TRUE,
+      escape_double = FALSE,
+      col_types = cols_only(
+        DATUM = "?",
+        "MATICNI_BROJ" = "?",
+        "NAZIV_BANKE" = "?",
+        "VRSTA_LICA"  = "?",
+        "SIFRA_LICA" = "?",
+        "NAZIV_LICA_LAT"  = "?",
+        "NAZIV_POTR"  = "?",
+        "OSNOVICA_B_16"  = "?",
+        "KLASIFIKACIJA" = "?",
+        "ISPR_VRED_BIL_AKT_30" = "?"
+      )
+    )
   gc()# free system memory
   
   
@@ -93,8 +127,7 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
   ################################################################################
   #############################Tretman `NA` vrednosti:############################
   ################################################################################
-  #naknadna izmena zbog dodavanja ka4 a nepotrebna je kolona vrsta lica
-  KA4_podaci[is.na(KA4_podaci)]=9
+  KA4_podaci$VRSTA_LICA[is.na(KA4_podaci$VRSTA_LICA)]<-9
   KA4_podaci<-na.omit(KA4_podaci)
   RK_podaci_novi<-na.omit(RK_podaci_novi)
   gc()
@@ -293,7 +326,7 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
   }
   
   default_indicator<-temp_dt
-  for(i in temp_dt[])
+
   #pobrisem nepotrebne varijable
   rm(temp_dt,DATA,KA4_date_fixed,RK_date_fixed,i,KA4_final,RK_podaci_novi, pocetni_datum,poslednji_datum)
   
@@ -355,7 +388,7 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
     default_indicator_repeated[,indikator_kolona:=(temp_indikator_kolona==0 | temp_indikator_kolona==count)]
     #e sada konacno razdvajamo ponavljajuce observacije na dva dela, 1 su oni koji su kod svake banke 
     #u posmatranom datumu bili u istom statusu, njih cuvamo u varijablu same_repeated i onda dalje 
-    #zadrzavamo samo najvece izlozenosti u bankarskom sektoru od svih tih. Ove problematicne koji imaju razlicite statuse stavljamo 
+    #zadrzavamo samo redove najvece izlozenosti u bankarskom sektoru od svih tih. Ove problematicne koji imaju razlicite statuse stavljamo 
     #u varijablu different_repeated i onda zavisno od udela lose izlozenosti u izlozenosti u citavom 
     #sektoru dodeljujemo im status za sve banke, na kraju zadrzavamo ovako dobijene observacije sa 
     #najvecom izlozenoscu a observacije u drugim bankama brisemo:
@@ -387,7 +420,7 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
   temp_dt<-temp_dt[order(temp_dt$MAT_BR_DUZNIKA,temp_dt$DATUM.x)]
   
   n.row<-nrow(temp_dt)-1
-  temp_dt_reduced=vector(,n.row+1)
+  temp_dt_reduced=vector(mode = "logical", length = n.row+1)
   temp_dt_reduced[1]=T
   
   #Uzasno sporo, u isto vreme if komanda u R-u totalno je retardirana..., ali ne mogu vise nesto drugo da pisem...elem,
@@ -395,11 +428,35 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
   #posmatramo hipoteticki slucaj: 2008 zdrav, 2010 difoltirao-u migraciji 2008->2010 bice migracija u difolt
   #medjutim, takodje ce se desiti i u 2009->2011 jer je u 2009 on jos uvek zdrav. Nakon konsultovanja sa kolegama
   #odlucili smo da brisemo (u duhu primera) migraciju 2009->2011
-  for(i in 1:n.row){
-    ifelse(temp_dt[i+1,2]==temp_dt[i+1,2],
-           ifelse(temp_dt[i,14]==1,temp_dt_reduced[i+1]<-F,temp_dt_reduced[i+1]<-T),
-           ifelse(nrow(temp_dt)<i,break,temp_dt_reduced[i+1]<-F)
-    )
+  
+  
+  if(consequtive_difolt==T){
+  
+  for(i in 1:n.row) {
+    if (temp_dt[i, 2] == temp_dt[i + 1, 2]) {
+      if (temp_dt[i, 14] == 1) {
+        temp_dt[i + 1, 14] <- 1
+        temp_dt_reduced[i + 1] <- F
+      } else {
+        temp_dt_reduced[i + 1] <- T
+      }
+    } else {
+    temp_dt_reduced[i + 1] <- T
+    }
+    
+    if (nrow(temp_dt) < i)
+      break
+  }
+  } else {
+    
+    for(i in 1:n.row){
+      ifelse(temp_dt[i+1,2]==temp_dt[i+1,2],
+             ifelse(temp_dt[i,14]==1,temp_dt_reduced[i+1]<-F,temp_dt_reduced[i+1]<-T),
+             ifelse(nrow(temp_dt)<i,break,temp_dt_reduced[i+1]<-F)
+      )
+    }
+    
+    
   }
   
   temp_dt<-temp_dt[temp_dt_reduced]

@@ -7,17 +7,50 @@ library(lubridate)
 
 ###############################################################################
 ###################             Ucitavanje podataka      ######################
-###############################################################################
+###############################################################################, select=c(1,2,3,6,8,9,12,31,32)
+options(digits = 20)
 
-RK_podaci_novi<-read_delim("C:/Users/milos.cipovic/Desktop/Baze podataka/K4 i APR i NPL/RK_novi.txt", 
-                           "|", escape_double = FALSE, col_types = cols(DATUM = col_date(format = "%d.%m.%Y")), 
-                           trim_ws = TRUE)
-#dakle biramo samo kolone sa ovim rednim brojevima jer nam druge nisu interesantne
-RK_podaci_novi<-RK_podaci_novi[,c(1,2,3,6,8,9,12,31,32)]
+RK_podaci_novi <-
+  read_delim(
+    "C:/Users/milos.cipovic/Desktop/Projekti/Early warning/Razvojni folder/Bottom Up/Korak 4/Early warning podaci nbs/RK_novi.txt",
+    "|",
+    escape_double = FALSE,
+    col_types = cols_only(
+      DATUM = col_date(format = "%d.%m.%Y"),
+      "MATICNI_BROJ" = "?",
+      "NAZIV_BANKE" = "?",
+      "FIZL_PRAVL_IND" = "?",
+      "MAT_BR_DUZ" = "?",
+      "NAZIV_DUZ" = "?",
+      "KLASIFIKACIJA" = "?",
+      "BILANS_BRUTO" = "?",
+      "BILANS_NETO" = "?"
+    ),
+    trim_ws = TRUE)
+
+#dakle biramo samo ove kolone
+
 gc()# free system memory
 
-KA4_podaci <- read_delim("C:/Users/milos.cipovic/Desktop/Baze podataka/K4 i APR i NPL/KA4_podaci.txt",
-                         "|",  locale = locale(encoding = "UTF-8"), trim_ws = TRUE,escape_double = FALSE)
+#KA4_podaci <- read_delim("C:/Users/milos.cipovic/Desktop/Projekti/Early warning/Razvojni folder/Bottom Up/Korak 4/Early warning podaci nbs/KA4_podaci.txt",
+                        # "|",  locale = locale(encoding = "UTF-8"), trim_ws = TRUE,escape_double = FALSE)
+
+KA4_podaci <- read_delim("C:/Users/milos.cipovic/Desktop/Projekti/Early warning/Razvojni folder/Bottom Up/Korak 4/Early warning podaci nbs/KA4_podaci.txt",
+                         "|",  locale = locale(encoding = "UTF-8"), trim_ws = TRUE,escape_double = FALSE,
+                         col_types = cols_only(
+                           DATUM = col_date(format = "%d.%m.%Y"),
+                           "MATICNI_BROJ" = "?",
+                           "NAZIV_BANKE" = "?",
+                           "VRSTA_LICA"  = "?",
+                           "SIFRA_LICA" = "?",
+                           "NAZIV_LICA_LAT"  = "?",
+                           "NAZIV_POTR"  = "?",
+                           "OSNOVICA_B_16"  = "?",
+                           "KLASIFIKACIJA" = "?",
+                           "ISPR_VRED_BIL_AKT_30" = "?"
+                         ))
+
+
 #dakle biramo samo kolone sa ovim rednim brojevima jer nam druge nisu interesantne
 KA4_podaci <-KA4_podaci[,c(1,2,3,4,5,6,9,25,36,40)]
 gc()# free system memory
@@ -49,7 +82,7 @@ gc()
 #########Sklanjamo klasifikaciju gde je polje `Klasifikacija` jednako `Zbirno`:#
 ################################################################################
 
-KA4_podaci <-KA4_podaci[KA4_podaci[,9]!="Zbirno",]
+KA4_podaci <- KA4_podaci[KA4_podaci[,9]!="Zbirno",]
 gc()
 
 ################################################################################
@@ -57,7 +90,7 @@ gc()
 ################################################################################
 
 #naknadna izmena zbog dodavanja ka4 a nepotrebna je kolona vrsta lica
-KA4_podaci[is.na(KA4_podaci)]=9
+KA4_podaci$VRSTA_LICA[is.na(KA4_podaci$VRSTA_LICA)]<-9
 KA4_podaci<-na.omit(KA4_podaci)
 RK_podaci_novi<-na.omit(RK_podaci_novi)
 gc()
