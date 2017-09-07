@@ -38,6 +38,7 @@ Jos jednom cemo pregledati varijable:
 #rpivotTable(lrge.training)
 summary_table.small<-t(sapply(small.training[,11:43],my.summary,arg=T))
 tr_summary_table.small<-t(summary_table.small)
+
 formatRound(
             datatable(
                       summary_table.small,caption = "Tabela 3.:Sumarni prikaz",
@@ -64,8 +65,8 @@ Prvo kreiramo funkciju za plotiranje: qq plota, box plota, poredjenja gustina ve
 small.training.continualne<-small.training[,c(7,6,11,13:43)]
 small.training.kategoricke<-small.training[,c(7,8,9,10,12)]
 
-small.test.continualne<-small.training[,c(7,6,11,13:43)]
-small.test.kategoricke<-small.training[,c(7,8,9,10,12)]
+small.test.continualne<-small.test[,c(7,6,11,13:43)]
+small.test.kategoricke<-small.test[,c(7,8,9,10,12)]
 
 ```
 
@@ -561,7 +562,7 @@ Ovde kreiram funkciju koja ce da filtrira varijable po kriterijumu korelacije. N
 #assuming that table is n x (n+1) matrix where first column is AUROC value and the rest n x n is correlation matrix 
 
 
-clean_cor.small<-corr_ellimination(kor_diskr.small)
+clean_cor.small<-corr_ellimination(kor_diskr.small,ro = )
 knitr::kable(clean_cor.small, caption = "Tabela 6. skracena korelaciona tabela koja sadrzi varijable nad kojima ce se vrsiti dalja analiza")
 
 ```
@@ -646,24 +647,43 @@ small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="P"]<-"4%"
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="Q"]<-"4%"
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="R"]<-"4%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="B"]<-"4%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="G"]<-"4%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="J"]<-"4%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="P"]<-"4%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="Q"]<-"4%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="R"]<-"4%"
 
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="M"]<-"6%"
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="N"]<-"6%"
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="S"]<-"6%"
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="F"]<-"6%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="M"]<-"6%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="N"]<-"6%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="S"]<-"6%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="F"]<-"6%"
 
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="H"]<-"3%"
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="E"]<-"3%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="H"]<-"3%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="E"]<-"3%"
 
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="I"]<-"10%"
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="J"]<-"9%"
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="K"]<-"9%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="I"]<-"10%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="J"]<-"9%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="K"]<-"9%"
 
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="A"]<-"5%"
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="C"]<-"5%"
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="D"]<-"5%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="A"]<-"5%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="C"]<-"5%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="D"]<-"5%"
 
 small.training.kategoricke$Sifra_sektor1[small.training.kategoricke$Sifra_sektor=="L"]<-"14%"
+small.test.kategoricke$Sifra_sektor1[small.test.kategoricke$Sifra_sektor=="L"]<-"14%"
 
 freq_table(small.training.kategoricke,"Sifra_sektor1","default.y")
 ```
@@ -688,11 +708,17 @@ small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor
 small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="14%"]<-"14%"
 small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="9%"]<-"6-9%"
 small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="6%"]<-"6-9%"
+small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="10%"]<-"10%"
+small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="14%"]<-"14%"
+small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="9%"]<-"6-9%"
+small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="6%"]<-"6-9%"
 
 small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="5%"]<-"5%"
 small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="4%"]<-"5%"
 small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="3%"]<-"3%"
-
+small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="5%"]<-"5%"
+small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="4%"]<-"5%"
+small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="3%"]<-"3%"
 
 data_sifra_sektor.small<-small.training.kategoricke[,c("default.y","Sifra_sektor2")]
 
@@ -705,7 +731,7 @@ IV_sifra_sektor.small$Tables
 
 ```
 
-Zakljucujemo da, sektor kod malih i mikro preduzeca ne igra bitnu ulogu.
+Zakljucujemo da, sektor kod malih i mikro preduzeca ne igra bas bitnu ulogu ali cemo uzeti ovu varijablu.
 ####Sifra opstine:  
 
 
@@ -796,6 +822,9 @@ probajmo da pregrupisemo
 small.training.kategoricke$Sifra_opstine3<-small.training.kategoricke$Sifra_opstine2 
 small.training.kategoricke$Sifra_opstine3[small.training.kategoricke$Sifra_opstine2 %in%
                                             c("4%","5%")] <- "4-5%"
+small.test.kategoricke$Sifra_opstine3<-small.test.kategoricke$Sifra_opstine2 
+small.test.kategoricke$Sifra_opstine3[small.test.kategoricke$Sifra_opstine2 %in%
+                                            c("4%","5%")] <- "4-5%"
 #small.training.kategoricke$Sifra_opstine3[(small.training.kategoricke$Sifra_opstine2 %in%
                                             #c("5%","6%","7%","8>%"))] <- "high%"
 
@@ -818,15 +847,27 @@ opstine_razvijenost <- read_delim("C:/Users/milos.cipovic/Desktop/Projekti/Early
 
 #jbg moramo voditi racuna o redosledu ovde!!!!!!
 small.training.kategoricke$id  <- 1:nrow(small.training.kategoricke)
+small.test.kategoricke$id  <- 1:nrow(small.test.kategoricke)
 
 small.training.kategoricke<-merge(small.training.kategoricke,opstine_razvijenost,all.x = T)
+small.test.kategoricke<-merge(small.test.kategoricke,opstine_razvijenost,all.x = T)
 
 small.training.kategoricke<-small.training.kategoricke[order(small.training.kategoricke$id), ][,id:=NULL]
+small.test.kategoricke<-small.test.kategoricke[order(small.test.kategoricke$id), ][,id:=NULL]
 
+
+
+data_razvijenost_ostine.small2<-small.training.kategoricke[,c("default.y","Razvijenost")]
+data_razvijenost_ostine.small2$Razvijenost<-as.character(data_razvijenost_ostine.small2$Razvijenost)
+
+IV_razvijenost2<-create_infotables(data=data_razvijenost_ostine.small2,
+                        y="default.y", 
+                        parallel=FALSE)
+
+IV_razvijenost2$Tables   
 freq_table(small.training.kategoricke,"Razvijenost","default.y")
-
 ```
-beynacajno
+beznacajno, konacan zakljucak je da idemo sa varijablom Sifra_opstine3
 ####Strani investitor  
 
 Pogledajmo prvo frekvencionu tabelu
@@ -834,7 +875,7 @@ Pogledajmo prvo frekvencionu tabelu
 ```{r}
 freq_table(small.training.kategoricke,"Strani_investitor","default.y")
 ```
-Postoji ocigledna razlika, imajuci u vidu da ovde imamo samo dve varijable, to je i ocekivano, hajde da vidimo IV:
+Postoji  razlika, imajuci u vidu da ovde imamo samo dve varijable, to je i ocekivano, hajde da vidimo IV:
 ```{r}
 WOETable(X=as.factor(small.training.kategoricke$Strani_investitor),Y=(small.training.kategoricke$default.y-1)*(-1))
 ```
@@ -871,7 +912,7 @@ preziveli.corr.AUC.small<-row.names(clean_cor.small)
 Presek ova dva nastavlja u multivariate.
 
 ```{r}
-odabrani.small<-c("Racio_novcane_likvidnosti_(Cash_ratio)", c(intersect(preziveli.NA.small,preziveli.corr.AUC.small)))
+odabrani.small<-unique(c("Racio_novcane_likvidnosti_(Cash_ratio)", c(intersect(preziveli.NA.small,preziveli.corr.AUC.small))))
 ```
 
 
@@ -883,13 +924,19 @@ Tretman nedostajucih i tretman autlajera, potom dodajemo kategoricke
 
 ```{r}
 finalni_small<-small.training[,c(odabrani.small),with=F]
-
+finalni_small.test<-small.test[,c(odabrani.small),with=F]
 #finalni_lrge<-cbind.data.frame(finalni_lrge,Asset_turnover$Asset_turnover.tr,Pokrice_neto_kamata$Pokrice_neto_kamata.tr)
 
 finalni_small<-as.data.table(sapply(finalni_small,replace_outlier_with_quantile))
+finalni_small.test<-as.data.table(sapply(finalni_small.test,replace_outlier_with_quantile))
 
-default.y<-small.training$default.y
-finalni_small<-as.data.table(sapply(finalni_small,replace_missing_with_median))
+finalni_small$default.y<-small.training$default.y
+finalni_small<-replace_missing_with_knn(finalni_small)
+finalni_small$default.y<-NULL
+
+finalni_small.test$default.y<-small.test$default.y
+finalni_small.test<-replace_missing_with_knn(finalni_small.test,training = F)
+finalni_small.test$default.y<-NULL
 ```
 
 
@@ -898,7 +945,7 @@ opciono, transformacija
 AA<-data.frame(1:nrow(finalni_small));n=1
 
 for(i in names(finalni_small)["default.y" != names(finalni_small)]) {
-  browser()
+
   n = n + 1
   tmp <- calibrate_parameters(finalni_small, i, "default.y")
   AA <- cbind.data.frame(AA, tmp[[7]])
@@ -914,7 +961,30 @@ finalni_small <- as.data.table(finalni_small)
 ```
 
 
-Posto ni jedna kategoricka nije prosla filter necemo ih spajati
+Dodajemo dve kategoricke:
+```{r}
+#spajamo sa kategorickim i skidamo par viskova kategorickih, velicina, total
+
+finalni_small <-
+  cbind.data.frame(finalni_small, small.training.kategoricke[, c("Velicina","Sifra_sektor2","Sifra_opstine3")])
+finalni_small.test <-
+  cbind.data.frame(finalni_small.test, small.test.kategoricke[, c("Velicina","Sifra_sektor2","Sifra_opstine3")])
+
+
+#pretvaram kategoricke u faktor da bi ih glm posmatrao kao kategoricke
+finalni_small$Sifra_sektor2 <- as.factor(finalni_small$Sifra_sektor2)
+finalni_small$Velicina <-as.factor(finalni_small$Velicina)
+finalni_small$Sifra_opstine3 <-as.factor(finalni_small$Sifra_opstine3)
+
+finalni_small.test$Sifra_sektor2 <- as.factor(finalni_small.test$Sifra_sektor2)
+finalni_small.test$Velicina <-as.factor(finalni_small.test$Velicina)
+finalni_small.test$Sifra_opstine3 <-as.factor(finalni_small.test$Sifra_opstine3)
+
+
+```
+
+
+
 
 
 Dugo ocekivani trenutak:
@@ -939,10 +1009,13 @@ step(model.null.small,
 ```
 
 ```{r}
-model1.small <- glm(formula = default.y ~ T12 + Stopa_prinosa_na_ukupna_sredstva_pre_oporezivanja + 
-    Asset_turnover + udeo_u_kapitalu + Broj_zaposlenih + Vreme_kreditiranja_kupaca + 
-    Stepen_zaduzenosti + `Racio_novcane_likvidnosti_(Cash_ratio)` + 
-    T14, family = binomial(link = "logit"), data = finalni_small)
+model1.small <-glm(formula = default.y ~ T12 + Stopa_prinosa_na_ukupna_sredstva_pre_oporezivanja + 
+    Asset_turnover + `Racio_novcane_likvidnosti_(Cash_ratio)` + 
+    Sifra_opstine3 + udeo_u_kapitalu + Stepen_zaduzenosti + Vreme_kreditiranja_kupaca + 
+    Sifra_sektor2 + `Racio_pokrica_kamata_zaradom_pre_kamata_i_poreza_(Interest_Coverage_Ratio)` + 
+    Broj_zaposlenih + Racio_pokrica_obrtne_imovine + Velicina + 
+    T14 + Stopa_prinosa_na_sopstveni_kapital_pre_oporezivanja, 
+    family = binomial(link = "logit"), data = finalni_small)
   
 model1.small.data.frame<-data.frame(fit1=model1.small$fitted.values, dif1=model1.small$model$default.y)
 
@@ -958,14 +1031,14 @@ step(model.full.small,
              data=finalni_small, trace=0)
 ```
 ```{r}
- model2.small= glm(formula = default.y ~ `Racio_novcane_likvidnosti_(Cash_ratio)` + 
+ model2.small=  glm(formula = default.y ~ `Racio_novcane_likvidnosti_(Cash_ratio)` + 
     Broj_zaposlenih + Stepen_zaduzenosti + `Racio_pokrica_kamata_zaradom_pre_kamata_i_poreza_(Interest_Coverage_Ratio)` + 
-     + Gotovinski_ciklus_1 + Vreme_kreditiranja_kupaca + 
+    Racio_pokrica_obrtne_imovine + Gotovinski_ciklus_1 + Vreme_kreditiranja_kupaca + 
     Vreme_naplate_potrazivanja + Vreme_placanja_dobavljacima + 
     Asset_turnover + Stopa_prinosa_na_sopstveni_kapital_pre_oporezivanja + 
     Stopa_prinosa_na_ukupna_sredstva_pre_oporezivanja + T12 + 
-    T14 + udeo_u_kapitalu, family = binomial(link = "logit"), 
-    data = finalni_small)
+    T14 + udeo_u_kapitalu + Velicina + Sifra_sektor2 + Sifra_opstine3, 
+    family = binomial(link = "logit"), data = finalni_small)
 
 model2.small.data.frame=data.frame(fit2=model2.small$fitted.values, dif2=model2.small$model$default.y)
 
@@ -976,13 +1049,13 @@ Wald statistik:
 ```{r}
 library(car)
 
-Anova(model.final, type="II", test="Wald")
+Anova(model1.small, type="II", test="Wald")
 ```
 Langrange multiplier test:
 
 ```{r}
-anova(model.final,
-      model.null,
+anova(model1.small,
+      model.null.small,
       test="Chisq")
 ```
 
@@ -1006,18 +1079,17 @@ Drugi nacin
 ###validacioni uzorak  
 
 ```{r}
-finalni_small.valid<-small.test[,c("Racio_novcane_likvidnosti_(Cash_ratio)",odabrani),with=F]
-finalni_small.valid<-as.data.table(sapply(finalni_small.valid, replace_outlier_with_quantile))
 
-
-finalni_small.valid<-as.data.table(sapply(finalni_small.valid, replace_missing_with_median,training=F))
-
-
-model1.small.pred<-as.numeric(predict(model1.small, newdata = finalni_small.valid, type = "response"))
+model1.small.pred<-as.numeric(predict(model1.small, newdata = finalni_small.test, type = "response"))
 dif.small.valid<-small.test$default.y
 
-auroc.1.pred<-auc(dif.small.valid, model1.small.pred)
+model2.small.pred<-as.numeric(predict(model2.small, newdata = finalni_small.test, type = "response"))
 
+
+
+auroc.1.pred<-auc(dif.small.valid, model1.small.pred)
+auroc.2.pred<-auc(dif.small.valid, model2.small.pred)
+c(auroc.1.pred,auroc.2.pred)
 ```
 
 
@@ -1034,13 +1106,12 @@ auroc.1.pred<-auc(dif.small.valid, model1.small.pred)
 
 
 ```{r}
-my.vars.small <-
-  finalni_small# a matrix with your 14 different environmental variables
+my.vars.small <-finalni_small# a matrix with your 14 different environmental variables
 names(my.vars.small)[c(1, 4)] <-
   c("Racio_novcane_likvidnosti",
   "Racio_pokrica_kamata_zaradom_pre_kamata_i_poreza")
 
-my.vars.small.valid <- finalni_small.valid#
+my.vars.small.valid <- finalni_small.test#
 names(my.vars.small.valid)[c(1, 4)] <-
   c("Racio_novcane_likvidnosti",
   "Racio_pokrica_kamata_zaradom_pre_kamata_i_poreza")
@@ -1056,7 +1127,7 @@ sum.vars.small <- vector()
 auc.p.small <- vector()
 auc.pred.smal<-vector()
 comb.mat.small <- matrix(numeric(0), nrow=nvar.small, ncol=0) # initialise the matrix containing all combinations
-
+dif.small.valid<-small.test$default.y
 
 
 for ( i in 1:nvar.small ) { # generate and store all possible combination of sums of the 14 variables
@@ -1067,9 +1138,7 @@ for ( i in 1:nvar.small ) { # generate and store all possible combination of sum
 }
 
 colnms.small<-colnames(my.vars.small)
-#my.vars.small$default.y=small.training$default.y
-
-dif.small.valid<-small.test$default.y
+my.vars.small$default.y=small.training$default.y
 
 num.of.vars.small <- apply(as.data.frame(comb.mat.small),c(2)
                       , function(x) {
@@ -1092,12 +1161,13 @@ for ( j in 1:dim(comb.mat.small)[2] ) { # calculate and store the R2 for all com
   model.small.data.frame=data.frame(fit=fitted.values(model.small), dif=model.small$y)
   #browser()
   auc.p.small[j] <- auc_roc(as.numeric(model.small.data.frame$fit),as.numeric(model.small.data.frame$dif))
-  
+  #auc.p.small[j] <-fastAUC(as.numeric(model.small.data.frame$fit),as.numeric(model.small.data.frame$dif))
   
   
   model.small.pred<-as.numeric(predict(model.small, newdata = my.vars.small.valid, type = "response"))
   
   auc.pred.smal[j]<-auc_roc( model.small.pred,dif.small.valid)
+  #auc.pred.smal[j]<-fastAUC( model.small.pred,dif.small.valid)
   
   if(j %in% round(seq(from=1, to=dim(comb.mat.small)[2],length.out = 100))) print(j/dim(comb.mat.small)[2])
   #print(j)

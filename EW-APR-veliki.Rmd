@@ -1267,7 +1267,7 @@ IV_sifra_sektor$Tables
 
 
 ```
-*Information value* od 0.94 deluje kao prihvatljiv, ali ovde imamo samo 17 difoltera na jednu varijablu ciji bin ne ulazi breko 
+*Information value* od 0.04 deluje kao prihvatljiv, ali ovde imamo samo 19 difoltera na jednu varijablu ciji bin ne ulazi 
 
 ####Sifra opstine:  
 
@@ -1322,7 +1322,7 @@ IV_opstine_po_razvijenosti<-create_infotables(data=data_opstine_po_razvijenosti,
 IV_opstine_po_razvijenosti$Tables
 
 ```
-Dobili smo IV oko 0.04 sto zadovoljava medjutim jako je mali broj difolta u kategoriji 3 imajuci u vidu broj opstina koje spadaju u nju, spajamo 2 i 3
+Dobili smo IV oko 0.07 sto zadovoljava medjutim jako je mali broj difolta u kategoriji 3 imajuci u vidu broj opstina koje spadaju u nju, spajamo 2 i 3
 ```{r}
 #kreiram novu varijablu gde 3 i 2 spajam
 lrge.training.kategoricke$Razvijenost[lrge.training.kategoricke$Razvijenost==3]<-2
@@ -1373,7 +1373,7 @@ IV_strani_investitor<-create_infotables(data=data_strani_investitor,
                         y="default.y", 
                         parallel=FALSE)
 
-IV_strani_investitor$Summary
+IV_strani_investitor$Tables
 ```
 Imamo IV oko 0.03. Uzecemo ovako.
 
@@ -1577,7 +1577,6 @@ finalni_lrge <-
 finalni_lrge$Razvijenost <- as.factor(finalni_lrge$Razvijenost)
 finalni_lrge$Strani_investitor <-
 as.factor(finalni_lrge$Strani_investitor)
-
 ```
 
 Dugo ocekivani trenutak:
@@ -1602,11 +1601,9 @@ step(model.null,
 ```
 
 ```{r}
-model1 <- glm(formula = default.y ~ Stopa_prinosa_na_ukupna_sredstva_pre_oporezivanja + 
-    `Racio_novcane_likvidnosti_(Cash_ratio)` + Stepen_zaduzenosti + 
-    Gotovinski_ciklus_1 + Cena_tudjih_izvora_sredstava + Razvijenost + 
-    T21 + Racio_pokrica_obrtne_imovine, family = binomial(link = "logit"), 
+model1 <- glm(formula =default.y~`Racio_novcane_likvidnosti_(Cash_ratio)`+Stepen_zaduzenosti+Gotovinski_ciklus_1+Vreme_naplate_potrazivanja+Stopa_prinosa_na_sopstveni_kapital_pre_oporezivanja+Cena_tudjih_izvora_sredstava, family = binomial(link = "logit"), 
     data = finalni_lrge)
+
 
 model1.data.frame<-data.frame(fit1=model1$fitted.values, dif1=model1$model$default.y)
 
@@ -1622,7 +1619,14 @@ step(model.full,
              data=finalni_lrge, trace=0)
 ```
 ```{r}
- model2<-  glm(formula =default.y~`Racio_novcane_likvidnosti_(Cash_ratio)`+Stepen_zaduzenosti+Gotovinski_ciklus_1+Vreme_naplate_potrazivanja+Stopa_prinosa_na_sopstveni_kapital_pre_oporezivanja+Cena_tudjih_izvora_sredstava, family = binomial(link = "logit"), 
+ model2<-  glm(formula = default.y ~ `Rigorozni_racio_redukovane_(monetarne)_likvidnosti` + 
+    `Racio_novcane_likvidnosti_(Cash_ratio)` + Stepen_zaduzenosti + 
+    `Racio_pokrica_kamata_zaradom_pre_kamata_i_poreza_(Interest_Coverage_Ratio)` + 
+    Racio_pokrica_obrtne_imovine + Gotovinski_ciklus_1 + Vreme_kreditiranja_kupaca + 
+    Vreme_naplate_potrazivanja + Vreme_placanja_dobavljacima + 
+    Stopa_prinosa_na_sopstveni_kapital_pre_oporezivanja + Stopa_prinosa_na_ukupna_sredstva_pre_oporezivanja + 
+    Cena_tudjih_izvora_sredstava + T14 + T21 + udeo_u_kapitalu + 
+    Strani_investitor + Razvijenost, family = binomial(link = "logit"), 
     data = finalni_lrge)
 
 model2.data.frame=data.frame(fit2=model2$fitted.values, dif2=model2$model$default.y)
@@ -1768,9 +1772,9 @@ for ( j in 1:dim(comb.mat)[2] ) { # calculate and store the R2 for all combinati
 
 result.frame <- data.frame(combination=sum.vars, auc.p=auc.p, auc.test=auc.pred,num_of_vars=num.of.vars)
 
-result.frame.sorted <- result.frame[order(-auc.p,-auc.pred,-num.of.vars), ]
+result.frame.sorted <- result.frame[order(-auc.pred,-auc.p,-num.of.vars), ]
 
-head(result.frame.sorted, n=100) # the 10 "best" combinations
+  head(result.frame.sorted[result.frame.sorted$auc.test>0.75 & result.frame.sorted$auc.p>0.75 & result.frame.sorted$num_of_vars==6,], n=100) # the 10 "best" combinations
 ```
 
 

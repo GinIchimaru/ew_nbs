@@ -456,14 +456,11 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
       )
     }
     
-    
   }
   
   temp_dt<-temp_dt[temp_dt_reduced]
   default_indicator_unique<-temp_dt
   rm(temp_dt,temp_dt_reduced,i,n.row,default_indicator)
-  
-  
   
   return(default_indicator_unique)
 }
