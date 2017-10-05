@@ -1,7 +1,7 @@
 #KA4_url="C:/Users/milos.cipovic/Desktop/Baze podataka/K4 i APR/KA4_podaci.txt"
 #RK_url="C:/Users/milos.cipovic/Desktop/Baze podataka/K4 i APR/RK_novi.txt"
 
-read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0.99,triger_za_default=0.2, consequtive_difolt=T){
+read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0.99,triger_za_default=0.2, consequtive_difolt=F){
 ###########################################################################################################  
   #funkcija sluzi za ucitavanje rk i ka4 obrasca i njihovu manipulaciju i spajanje, ciscenje              #
   #nelogicnih unosa, brisanje redova zbirno u ka4, zadrzavanje samo decembra meseca u rk,                 #
@@ -36,6 +36,10 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
           #vise banaka u datom datumu) i dodeljivanjem im jedinstvenog statusa difoltirao/nije difoltirao
           #. Dati status se dodeljuje na osnovu toga da li je vise od triger_za_default*100% vrednosti
           #u difoltu ili nije.
+      # consequtive_difolt=T ukoliko je neko recimo 2008->2010 difoltirao i to tokom godine 2009
+          #da li ga zadrzavamo kao solventnog i tada tako da 'emo ga imati i u tranziciji 2009->2011
+          #(komanda consequtive_difolt=F) kao difoltiranog
+          #ili ga brisemo i ostavljamo samo tranziciju 2008->2010 (komanda consequtive_difolt=T)-malo je kontraintuitivna komanda
 #-----------------------------------------------------------------------------------------------------------
   
   
@@ -247,10 +251,7 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
   #############################################################################################
   #######          Razvrstavanje duznika UZIMAJUCI U OBZIR SAMO KRAJ GODINE           #########
   #############################################################################################
-  #Pre svega, zanemariti prethodne kernel grafike jer nisu interesantni osim sto govore da je #
-  #vecina duznika ispravljeno ili sa 0 ili sa 100%. Sada je potrebno zadrzati samo kraj godine#
-  #s obzirom da ce sami APR izvestaji biti u tom formatu.                                     #
-  #############################################################################################
+
   
   rm(KA4_podaci,KA4_podaciDT)
   gc()
@@ -388,9 +389,9 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
     default_indicator_repeated[,indikator_kolona:=(temp_indikator_kolona==0 | temp_indikator_kolona==count)]
     #e sada konacno razdvajamo ponavljajuce observacije na dva dela, 1 su oni koji su kod svake banke 
     #u posmatranom datumu bili u istom statusu, njih cuvamo u varijablu same_repeated i onda dalje 
-    #zadrzavamo samo redove najvece izlozenosti u bankarskom sektoru od svih tih. Ove problematicne koji imaju razlicite statuse stavljamo 
+    #zadrzavamo samo redove najvece izlozenosti u bankarskom sektoru od svih tih na posmatrani datum. Ove problematicne koji imaju razlicite statuse stavljamo 
     #u varijablu different_repeated i onda zavisno od udela lose izlozenosti u izlozenosti u citavom 
-    #sektoru dodeljujemo im status za sve banke, na kraju zadrzavamo ovako dobijene observacije sa 
+    #sektoru dodeljujemo im isti status za sve banke, na kraju zadrzavamo ovako dobijene observacije sa 
     #najvecom izlozenoscu a observacije u drugim bankama brisemo:
     
     #isti status:
@@ -447,16 +448,9 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
     if (nrow(temp_dt) < i)
       break
   }
-  } else {
+  } else {temp_dt_reduced<-rep(T,n.row+1) }
     
-    for(i in 1:n.row){
-      ifelse(temp_dt[i+1,2]==temp_dt[i+1,2],
-             ifelse(temp_dt[i,14]==1,temp_dt_reduced[i+1]<-F,temp_dt_reduced[i+1]<-T),
-             ifelse(nrow(temp_dt)<i,break,temp_dt_reduced[i+1]<-F)
-      )
-    }
-    
-  }
+  
   
   temp_dt<-temp_dt[temp_dt_reduced]
   default_indicator_unique<-temp_dt

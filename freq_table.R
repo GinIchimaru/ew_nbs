@@ -1,0 +1,12 @@
+freq_table=function(dta,kategorical,default){
+  kategorical=as.name(kategorical)
+  default=as.name(default)
+  tmp=dta[,.N,by=.(eval(kategorical),eval(default))]
+  frekvenca_sektor<-dcast(tmp,eval(kategorical)~eval(default),value.var="N")
+  frekvenca_sektor$`0`[is.na(frekvenca_sektor$`0`)]=0
+  frekvenca_sektor$`1`[is.na(frekvenca_sektor$`1`)]=0
+  ukupno<-frekvenca_sektor$`0`+frekvenca_sektor$`1`
+  frekvenca_sektor<-cbind.data.frame(frekvenca_sektor,ukupno)
+  frekvenca_sektor[,default_rate:=frekvenca_sektor$`1`/ukupno]
+  as.data.frame(frekvenca_sektor)
+}
