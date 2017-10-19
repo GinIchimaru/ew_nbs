@@ -264,7 +264,7 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
   
   RK_podaci_novi$DATUM=as.Date(RK_podaci_novi$DATUM,format ="%d.%m.%Y" )
   RK_date_fixed<-RK_podaci_novi[month(DATUM)==12]
-  
+  browser()
   ############################################################################################
   ######                 Potrebno je izracunati tranzicije za svaku godinu dana     ##########
   ############################################################################################
@@ -331,7 +331,7 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
   #pobrisem nepotrebne varijable
   rm(temp_dt,DATA,KA4_date_fixed,RK_date_fixed,i,KA4_final,RK_podaci_novi, pocetni_datum,poslednji_datum)
   
-  
+  browser()
   
   ############################################################################################
   #####################               Jos ovo                 ################################
@@ -430,7 +430,7 @@ read_KA4_RK_data<-function(KA4_url,RK_url,granica_gubitka=0.1,p=0.1,percentile=0
   #medjutim, takodje ce se desiti i u 2009->2011 jer je u 2009 on jos uvek zdrav. Nakon konsultovanja sa kolegama
   #odlucili smo da brisemo (u duhu primera) migraciju 2009->2011
   
-  
+  browser()
   if(consequtive_difolt==T){
   
   for(i in 1:n.row) {

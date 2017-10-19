@@ -477,6 +477,39 @@ ______________________________________
 
 ploting(small.training,40,7)
 
+#############################################################################
+###           opciono, proračun altmana logističkom          ################
+#############################################################################
+#                                                                           #
+tmp1=small[,c(34:38)]
+tmp.dif=small$default.y
+
+source("outlier_missing_functions.R")
+tmp2<-as.data.table(sapply(tmp1,replace_outlier_with_quantile))
+
+tmp2$default.y<-tmp.dif
+tmp2<-tmp2[!(default.y==1 & is.na(T11)),]
+tmp2<-tmp2[!(default.y==0 & is.na(T11)),]
+tmp3<-replace_missing_with_knn(tmp2)
+tmp.model <-
+  glm(formula = default.y ~ T11 + T12 + T13 + T14 + T15,
+  family = binomial(link = "logit"),
+  data =tmp3)
+  result.train = auc(tmp.model$y, tmp.model$fitted.values)
+ annotation1 = paste("AUROC:",
+                     round(ci(result.train)[[1]], 3),
+                     ", ",
+                     round(result.train, 3),
+                     ", ",
+                     round(ci(result.train)[[3]], 3))
+#rezultat je sličan-skoro isti, zanimljivo...
+rm(tmp.dif,tmp.model,tmp1,tmp2,tmp3,annotation1)
+#                                                                          #
+############################################################################
+
+```
+```{r,fig.width=18,fig.height=3}
+ploting(data.frame(tmp.model$y, tmp.model$fitted.values),2,1)
 ```
 
 *   Radna hipoteza-zadovoljena je
@@ -562,7 +595,7 @@ Ovde kreiram funkciju koja ce da filtrira varijable po kriterijumu korelacije. N
 #assuming that table is n x (n+1) matrix where first column is AUROC value and the rest n x n is correlation matrix 
 
 source("corr_elimination.R")
-clean_cor.small<-corr_ellimination(kor_diskr.small,ro = )
+clean_cor.small<-corr_ellimination(kor_diskr.small,ro =0.5 )
 knitr::kable(clean_cor.small, caption = "Tabela 6. skracena korelaciona tabela koja sadrzi varijable nad kojima ce se vrsiti dalja analiza")
 
 ```
@@ -647,48 +680,17 @@ IV_sifra_sektor.small$Tables
 
 
 ```
-*Information value* je bzveze, probajmo sada jos da pregrupišemo:
-preskočio sam ovo
+*Information value* je bzveze
 ```{r}
 
-small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="10%"]<-"10%"
-small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="14%"]<-"14%"
-small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="9%"]<-"6-9%"
-small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="6%"]<-"6-9%"
-small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="10%"]<-"10%"
-small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="14%"]<-"14%"
-small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="9%"]<-"6-9%"
-small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="6%"]<-"6-9%"
-
-small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="5%"]<-"5%"
-small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="4%"]<-"5%"
-small.training.kategoricke$Sifra_sektor2[small.training.kategoricke$Sifra_sektor1=="3%"]<-"3%"
-small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="5%"]<-"5%"
-small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="4%"]<-"5%"
-small.test.kategoricke$Sifra_sektor2[small.test.kategoricke$Sifra_sektor1=="3%"]<-"3%"
-
-data_sifra_sektor.small<-small.training.kategoricke[,c("default.y","Sifra_sektor2")]
-
-IV_sifra_sektor.small<-create_infotables(data=data_sifra_sektor.small,
-                        y="default.y", 
-                        parallel=FALSE)
-
-IV_sifra_sektor.small$Tables
-
-
-```
-
-Zakljucujemo da, sektor kod malih i mikro preduzeca ne igra bas bitnu ulogu ali cemo uzeti ovu varijablu.
 ####Sifra opstine:  
-
-
-```{r}
 freq_table(small.training.kategoricke,"Sifra_opstine","default.y")
 ```
 Za pocetak cemo smestiti sve opstine koje imaju manje od 100 duznika i manje od 5 difoltera u jednu klasu.
 ```{r}
 
 temp.table<-freq_table(small.training.kategoricke,"Sifra_opstine","default.y")
+
 ostalo.small.names<-temp.table[temp.table$ukupno<100,1]
 
 small.training.kategoricke$Sifra_opstine1<-small.training.kategoricke$Sifra_opstine
@@ -713,43 +715,42 @@ Svrstavamo ih po stopi difolta da vidimo da li se sta moze promeniti
 
 ```{r}
 
-small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in%
-                                            c(70041, 70955, 80403)] <- "2%"
+small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in% c(70041, 70939)] <- "3%"
 small.test.kategoricke$Sifra_opstine2[small.test.kategoricke$Sifra_opstine1 %in%
-                                            c(70041, 70955, 80403)] <- "2%"
+c(70041, 70939)] <- "3%"
 
-small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in%
-                                            c(70653,71099,71242,79065,80128,70939)] <- "3%"
+small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in% c(70653,70904,70955,71242,80438)] <- "4%"
 small.test.kategoricke$Sifra_opstine2[small.test.kategoricke$Sifra_opstine1 %in%
-                                            c(70653,71099,71242,79065,80128,70939)] <- "3%"
+c(70653,70904,70955,71242,80438)]<- "4%"
 
-small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in% c(70033,70483,70904,71048,71269,79022,79057,80110,80438,80462,"ostalo")] <- "4%"
-small.test.kategoricke$Sifra_opstine2[small.test.kategoricke$Sifra_opstine1 %in% c(70033,70483,70904,71048,71269,79022,79057,80110,80438,80462,"ostalo")] <- "4%"
+small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in% c(70033,71048,79065,80110,80152,80420,80462,"ostalo")] <- "5%"
+small.test.kategoricke$Sifra_opstine2[small.test.kategoricke$Sifra_opstine1 %in% c(70033,71048,79065,80110,80152,80420,80462,"ostalo")] <- "5%"
 
-
+small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in% c(70360,70438,70645,71099,71269,79022,79057,80071,80128,80314,80497)]<- "6%"
 small.test.kategoricke$Sifra_opstine2[small.test.kategoricke$Sifra_opstine1 %in%
-c(89010,80466,80420,80357,80314,80195,80179,80152,80071,70670,70459,70360,70645)] <- "5%"
-small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in%
-c(89010,80466,80420,80357,80314,80195,80179,80152,80071,70670,70459,70360,70645)] <- "5%"
+c(70360,70438,70645,71099,71269,79022,79057,80071,80128,80314,80497)] <- "6%"
 
-
-small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in%
-c(70726,70734,71102,71200,79014,79049,80063,80446,80497)] <- "6%"
+small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in% c(70459,70629,70670,70726,70734,71102,79014)] <- "7%"
 small.test.kategoricke$Sifra_opstine2[small.test.kategoricke$Sifra_opstine1 %in%
-c(70726,70734,71102,71200,79014,79049,80063,80446,80497)] <- "6%"
+ c(70459,70629,70670,70726,70734,71102,79014)] <- "7%"
 
 
-small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in%
-c(70874,70564,70386,80381,70629)] <- "7%"
+small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in% c(70386,70874,79049,80179,80233,8038189010)] <- "8%"
 small.test.kategoricke$Sifra_opstine2[small.test.kategoricke$Sifra_opstine1 %in%
-c(70874,70564,70386,80381,70629)] <- "7%"
+c(70386,70874,79049,80179,80233,8038189010)] <- "8%"
 
 
 small.test.kategoricke$Sifra_opstine2[small.test.kategoricke$Sifra_opstine1 %in%
-c(80209,80233,80136)] <- "8>%"
-small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in%
-c(80209,80233,80136)] <- "8>%"
+c(80063,80195,80357,80446)] <- "9%"
+small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in% c(80063,80195,80357,80446)] <- "9%"
 
+small.test.kategoricke$Sifra_opstine2[small.test.kategoricke$Sifra_opstine1 %in%
+c(70564,71200,80209)] <- "10%"
+small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in% c(70564,71200,80209)] <- "10%"
+
+small.test.kategoricke$Sifra_opstine2[small.test.kategoricke$Sifra_opstine1 %in%
+c(80136)] <- "12%"
+small.training.kategoricke$Sifra_opstine2[small.training.kategoricke$Sifra_opstine1 %in% c(80136)] <- "12%"
 
 
 data_sifra_ostine.small<-small.training.kategoricke[,c("default.y","Sifra_opstine2")]
@@ -1040,16 +1041,6 @@ c(auroc.1.pred,auroc.2.pred)
 
 
 
-
-
-[^3]: Vidi Rating Models and Validation -  Oesterreichische Nationalbank (OeNB).  
-[^4]: Hayden, E., & Porath, D. (2011). Statistical Methods to Develop Rating Models. In B. Engelmann, and R. Rauhmeier (Eds.), The Basel II Risk Parameters: Estimation, Validation, Stress Testing – with Applications to Loan Risk Management (pp. 1–12). New York: Springer.  
-[^5]: Developing, Validating and Using Internal Ratings - De Laurentis
-[^6]: Credit Risk Modeling using Excel and VBA, 2nd Edition - Gunter Löeffler, Peter N. Posch.
-[^7]: The Basel II Risk Parameters: Estimation, Validation, Stress Testing – with Applications to Loan Risk Management, Chapter 3. New York: Springer.
-[^8]: Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring, by Naeem Siddiqi 
-
-
 ```{r}
 my.vars.small <-finalni_small# a matrix with your 14 different environmental variables
 names(my.vars.small)[c(1, 4)] <-
@@ -1126,20 +1117,63 @@ for ( j in 1:dim(comb.mat.small)[2] ) { # calculate and store the R2 for all com
   #if(j==8) browser()
   #print(j)
 }
-
-
+my.vars.small$default.y=small.training$default.y
+my.vars.small.valid$default.y<-dif.small.valid
 
 result.frame.small <- data.frame(combination=sum.vars.small, auc.p.small=auc.p.small, auc.valid.small=auc.pred.smal,num_of_vars=num.of.vars.small,HL.p.small=HL.p.small,HL.v.small=HL.v.small)
 
-result.frame.small.sorted <- result.frame.small[order(auc.pred.smal, decreasing=TRUE), ]
-
+result.frame.small <- result.frame.small[order(auc.pred.smal, decreasing=TRUE), ]
+write.csv2(file = "mali.csv",x=result.frame.small)
 head(result.frame.small.sorted, n=100) # the 10 "best" combinations
+
 ```
 
 
 
+krajnji model
 
+```{r}
+model.small.final<-glm(formula =default.y ~ Racio_novcane_likvidnosti+Stepen_zaduzenosti+Racio_pokrica_kamata_zaradom_pre_kamata_i_poreza+Asset_turnover+Stopa_prinosa_na_ukupna_sredstva_pre_oporezivanja+Sifra_sektor1, family = binomial(link = "logit"),
+  data = my.vars.small)
 
+summary(model.medium.final)
+
+```
+
+```{r}
+source("final.roc_plot.HL.R")
+final.roc.plot(model.small.final,my.vars.small,my.vars.small.valid)
+```
+
+Čuvam varijable i rezultate
+
+```{r}
+pocetna.sumarna.tabela_small<-summary_table.small
+korerlacije.i.AUROC.pocetni_small<-kor_diskr.small
+korerlacije.i.AUROC.odabrani_small<-clean_cor.small
+
+precisceni.raciji.razvojni.uzorak_small<-my.vars.small
+precisceni.raciji.testni.uzorak_small<-my.vars.small.valid
+
+set.isprobanih.modela_small<-result.frame.small
+izabrani.model_small<-model.small.final
+zavrsni.plot.i.HL_small<-final.roc.plot(model.small.final,
+                                        my.vars.small,
+                                        my.vars.small.valid)
+
+save(pocetna.sumarna.tabela_small,
+     korerlacije.i.AUROC.pocetni_small,
+     korerlacije.i.AUROC.odabrani_small,
+     precisceni.raciji.razvojni.uzorak_small,
+     precisceni.raciji.testni.uzorak_small,
+     set.isprobanih.modela_small,
+     izabrani.model_small,
+     zavrsni.plot.i.HL_small,
+     file = "SmallData.RData"
+  )
+
+remove(list = ls())
+```
 
 
 
